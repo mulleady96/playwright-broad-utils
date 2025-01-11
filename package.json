@@ -1,0 +1,26 @@
+{
+  "name": "playwright-broad-utils",
+  "version": "1.0.1",
+  "description": "Utility functions for broad Playwright testing.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "playwright test"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "utilities"
+  ],
+  "author": "Andrew Mulleady",
+  "license": "MIT",
+  "peerDependencies": {
+    "@playwright/test": "^1.49.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
