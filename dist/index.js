@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkHeadingsVisibility = checkHeadingsVisibility;
 exports.checkButtonsVisibilityAndAriaLabel = checkButtonsVisibilityAndAriaLabel;
 exports.checkImagesVisibility = checkImagesVisibility;
+exports.checkAllExternalLinks = checkAllExternalLinks;
+exports.captureWebSocketMessages = captureWebSocketMessages;
 async function checkHeadingsVisibility(page) {
     await page.waitForLoadState("domcontentloaded");
     const headings = page.getByRole("heading");
@@ -11,7 +13,7 @@ async function checkHeadingsVisibility(page) {
     console.log(`Found ${headingCount} headings(s) on the page.`);
     for (let i = 0; i < headingCount; i++) {
         const header = headings.nth(i);
-        const isVisible = await header.isVisible();
+        const isVisible = (await header.isVisible()) && (await header.textContent()) !== "";
         if (!isVisible) {
             throw new Error(`Heading at index ${i} is not visible.`);
         }
@@ -55,4 +57,66 @@ async function checkImagesVisibility(page) {
         }
     }
     console.log(`All ${imageCount} images are visible.`);
+}
+async function checkAllExternalLinks(page) {
+    await page.waitForLoadState("domcontentloaded");
+    const links = page.getByRole("link");
+    const linkCount = await links.count();
+    let externalLinks = 0;
+    for (let i = 0; i < linkCount; i++) {
+        const link = links.nth(i);
+        const href = await link.getAttribute("href");
+        const target = await link.getAttribute("target");
+        if (target === "_blank" && href && href.startsWith("http")) {
+            try {
+                const newPagePromise = page.waitForEvent("popup");
+                await link.click();
+                const newPage = await newPagePromise;
+                await newPage.waitForLoadState("load", { timeout: 10000 });
+                const url = newPage.url();
+                const response = await newPage.request.get(url);
+                const statusCode = response.status();
+                if (statusCode !== 200) {
+                    throw new Error(`External link failed with status code: ${statusCode}`);
+                }
+                await newPage.close();
+                externalLinks++;
+            }
+            catch (error) {
+                throw new Error(`Failed to open external link at index ${i}: ${href}`);
+            }
+        }
+        else {
+            console.log(`Link at index ${i} is not an external link or does not open in a new tab.`);
+        }
+    }
+    console.log(`Total external links checked: ${externalLinks}`);
+}
+/**
+ * You can filter to catch all WS messages on a domain(/localhost/) or only those matching a specific URL:PORT i.e. /localhost:4201/.
+ * @param page
+ * @param options
+ * @returns Array of WebSocket messages sent and received
+ */
+async function captureWebSocketMessages(page, options = {}) {
+    const { urlFilter, timeout = 5000 } = options;
+    const wsMessages = [];
+    // Listen for WebSocket connections
+    page.on("websocket", (ws) => {
+        if (urlFilter && !ws.url().match(urlFilter)) {
+            return; // Skip WebSockets that don't match the filter
+        }
+        console.log("WebSocket connected:", ws.url());
+        ws.on("framesent", (data) => {
+            wsMessages.push({ type: "sent", message: data.payload.toString() });
+            console.log("Message sent:", data.payload);
+        });
+        ws.on("framereceived", (data) => {
+            wsMessages.push({ type: "received", message: data.payload.toString() });
+            console.log("Message received:", data.payload);
+        });
+    });
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(wsMessages), timeout);
+    });
 }

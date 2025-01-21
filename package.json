@@ -1,6 +1,11 @@
 {
   "name": "playwright-broad-utils",
-  "version": "1.0.1",
+  "version": "1.0.4",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/mulleady96/playwright-utils"
+  },
+  "homepage": "https://andrewmulleady.ie/home",
   "description": "Utility functions for broad Playwright testing.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -51,7 +51,7 @@ export default defineConfig({
 
 ## Step 4: Create a Test File
 
-Write your tests in the `tests` directory. Here's an example using `playwright-broad-utils`:
+Write your tests in the `tests` directory. For example, create `tests/home.spec.ts`:
 
 ```typescript
 import { test } from "@playwright/test";
@@ -95,6 +95,14 @@ Ensures all headings (`<h1>` to `<h6>`) are visible on the page.
 ### `checkImagesVisibility(page: Page)`
 
 Verifies all images are visible and checks for `alt` attributes for accessibility.
+
+### `checkAllExternalLinks(page: Page)`
+
+Verifies all external links open in a new tab.
+
+### `captureWebSocketMessages(page: Page, options?: { urlFilter?: string | RegExp; timeout?: number; })`
+
+You can filter to catch all WS messages on a domain (`/localhost/`) or only those matching a specific URL:PORT i.e. `/localhost:4201/`.
 
 ---
 
