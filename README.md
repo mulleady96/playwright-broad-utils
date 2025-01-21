@@ -56,6 +56,8 @@ Write your tests in the `tests` directory. For example, create `tests/home.spec.
 ```typescript
 import { test } from "@playwright/test";
 import {
+  captureWebSocketMessages,
+  checkAllExternalLinks,
   checkButtonsVisibilityAndAriaLabel,
   checkHeadingsVisibility,
   checkImagesVisibility,
@@ -64,6 +66,14 @@ import {
 test("@Home", async ({ page }) => {
   await page.goto("/home");
 
+  const urlFilter = /localhost:4201/; // WebSocket URL and port we want to capture.
+  // Start capturing WebSocket messages
+  const wsMessages = await captureWebSocketMessages(page, {
+    urlFilter,
+    timeout: 10000,
+  });
+
+  await checkAllExternalLinks(page);
   await checkButtonsVisibilityAndAriaLabel(page);
   await checkHeadingsVisibility(page);
   await checkImagesVisibility(page);
