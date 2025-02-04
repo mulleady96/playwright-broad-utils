@@ -68,6 +68,13 @@ export async function checkImagesVisibility(page: Page): Promise<void> {
     if (!hasAlt) {
       throw new Error(`Image at index ${i} has no alt text.`);
     }
+
+    const isRendered = await image.evaluate((img: HTMLImageElement) => {
+      return img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+    });
+    if (!isRendered) {
+      throw new Error(`Image at index ${i} is not rendered.`);
+    }
   }
 
   console.log(`All ${imageCount} images are visible.`);

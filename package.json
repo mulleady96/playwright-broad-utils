@@ -1,6 +1,6 @@
 {
   "name": "playwright-broad-utils",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "repository": {
     "type": "github",
     "url": "https://github.com/mulleady96/playwright-utils"
@@ -16,7 +16,8 @@
   "keywords": [
     "playwright",
     "testing",
-    "utilities"
+    "utilities",
+    "websocket"
   ],
   "author": "Andrew Mulleady",
   "license": "MIT",
